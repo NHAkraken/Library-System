@@ -284,14 +284,21 @@
     showDashboard();
   }
 
+  // Forces exactly one top-level screen to be visible at a time — prevents
+  // the sidebar/dashboard from ever being visible behind the login form.
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach((el) => {
+      el.classList.toggle("active", el.id === id);
+    });
+  }
+
   async function logout() {
     await supabase.auth.signOut();
     currentUser = null;
     favourites = [];
     downloads = [];
     stopAudio();
-    document.getElementById("dashboardScreen").classList.remove("active");
-    document.getElementById("loginScreen").classList.add("active");
+    showScreen("loginScreen");
     document.getElementById("loginForm").reset();
   }
 
@@ -309,18 +316,20 @@
   }
 
   function showDashboard() {
-    document.getElementById("loginScreen").classList.remove("active");
-    document.getElementById("dashboardScreen").classList.add("active");
+    showScreen("dashboardScreen");
     document.getElementById("userName").textContent =
       currentUser.name || currentUser.email;
-    const addBtn = document.getElementById("addBookBtn");
-    if (addBtn) addBtn.style.display = isAdmin() ? "" : "none";
+    const adminNav = document.getElementById("adminNavItem");
+    if (adminNav) adminNav.style.display = isAdmin() ? "" : "none";
     setActivePage("discover");
     renderAll();
   }
 
   /* --------------------------- Navigation ---------------------------------- */
   function setActivePage(page) {
+    if (page === "admin" && !isAdmin()) {
+      page = "discover";
+    }
     activePage = page;
     document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
       item.classList.toggle("active", item.dataset.page === page);
@@ -340,6 +349,7 @@
     if (page === "audiobooks") renderAudiobooks();
     if (page === "download") renderDownloads();
     if (page === "category") renderCategoryTiles();
+    if (page === "admin") renderAdminBooks();
   }
 
   /* --------------------------- Rendering ------------------------------------ */
@@ -360,6 +370,20 @@
     renderCategoryTiles();
     renderDownloads();
     renderAudiobooks();
+    if (isAdmin()) renderAdminBooks();
+  }
+
+  function renderAdminBooks() {
+    const container = document.getElementById("adminBooks");
+    if (!container) return;
+    if (!isAdmin()) {
+      container.innerHTML = emptyStateHtml("Admins only");
+      return;
+    }
+    const filtered = books.filter(matchesSearch);
+    container.innerHTML =
+      filtered.map(bookCardHtml).join("") ||
+      emptyStateHtml('No books yet — click "Add Book" to add one');
   }
 
   function renderRecommended() {
@@ -647,12 +671,14 @@
       }
       toast("Book updated");
     } else {
-      const { error } = await supabase.from("books").insert([
-        Object.assign(
-          { has_audio: false, added_by: currentUser.id },
-          bookData,
-        ),
-      ]);
+      const { error } = await supabase
+        .from("books")
+        .insert([
+          Object.assign(
+            { has_audio: false, added_by: currentUser.id },
+            bookData,
+          ),
+        ]);
       if (error) {
         toast("Could not add book: " + error.message);
         return;

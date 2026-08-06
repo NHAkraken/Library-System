@@ -3,299 +3,575 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Library Management System</title>
+    <title>BookBase - Library Management System</title>
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="screen active">
-      <div class="login-container">
-        <div class="login-box">
-          <div class="login-header">
-            <i class="fas fa-book-reader"></i>
-            <h1>Library Management System</h1>
-            <p>Librarian Login</p>
+      <div class="login-wrapper">
+        <div class="login-illustration">
+          <div class="illustration-content">
+            <i class="fas fa-book-open-reader"></i>
+            <h2>Welcome to BookBase</h2>
+            <p>Your Digital Library Management System</p>
           </div>
-          <form id="loginForm">
-            <div class="form-group">
-              <label for="username">
-                <i class="fas fa-user"></i> Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                placeholder="Enter username"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="password">
-                <i class="fas fa-lock"></i> Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Enter password"
-                required
-              />
-            </div>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-sign-in-alt"></i> Forgot Password!!
-            </button>
-            <div class="login-info">
-              <p>
-                <small
-                  >Wellcome Back, <strong></strong>! / have a great day!<br />
-                </small>
+        </div>
+
+        <div class="login-form-container">
+          <div class="login-box">
+            <h1>Sign In to your Account</h1>
+
+            <form id="loginForm">
+              <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input
+                  type="email"
+                  id="loginEmail"
+                  placeholder="Enter Email"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <div class="label-row">
+                  <label for="loginPassword">Password</label>
+                  <a href="#" id="forgotPasswordLink" class="forgot-link"
+                    >Forgot password?</a
+                  >
+                </div>
+                <div class="password-input">
+                  <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter Password"
+                    required
+                  />
+                  <i class="fas fa-eye-slash toggle-password"></i>
+                </div>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="rememberMe" />
+                  <span>Remember me</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn-signin">SIGN IN</button>
+
+              <p class="signup-text">
+                Not registered yet?
+                <a href="#" id="showSignupLink">Create an account</a>
               </p>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Main Dashboard -->
+    <!-- Sign Up Modal -->
+    <div id="signupModal" class="modal">
+      <div class="modal-content small">
+        <button class="close-modal">&times;</button>
+        <h2>Create an Account</h2>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="signupName">Full Name</label>
+            <input type="text" id="signupName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="signupEmail">Email</label>
+            <input type="email" id="signupEmail" required />
+          </div>
+
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" required minlength="6" />
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirmPassword">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" required />
+          </div>
+
+          <button type="submit" class="btn-signin">Create Account</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+      <div class="modal-content small">
+        <button class="close-modal">&times;</button>
+        <h2>Reset Password</h2>
+        <p class="modal-description">
+          Enter your email to receive reset instructions
+        </p>
+
+        <form id="forgotPasswordForm">
+          <div class="form-group">
+            <label for="resetEmail">Email</label>
+            <input type="email" id="resetEmail" required />
+          </div>
+
+          <button type="submit" class="btn-signin">Send Reset Link</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
     <div id="dashboardScreen" class="screen">
-      <!-- Navbar -->
-      <nav class="navbar">
-        <div class="nav-brand">
-          <i class="fas fa-book-reader"></i>
-          <span>Library System</span>
+      <!-- Sidebar backdrop (tablet/mobile only) -->
+      <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <i class="fas fa-book"></i>
+          <span>BookBase</span>
         </div>
-        <div class="nav-user">
-          <span id="welcomeUser">Welcome, Admin</span>
-          <button id="logoutBtn" class="btn btn-outline">
-            <i class="fas fa-sign-out-alt"></i> Logout
+
+        <nav class="nav-menu">
+          <a href="#" class="nav-item active" data-page="discover">
+            <i class="fas fa-compass"></i>
+            <span>Discover</span>
+          </a>
+          <a href="#" class="nav-item" data-page="category">
+            <i class="fas fa-th-large"></i>
+            <span>Category</span>
+          </a>
+          <a href="#" class="nav-item" data-page="library">
+            <i class="fas fa-book-open"></i>
+            <span>My Library</span>
+          </a>
+          <a href="#" class="nav-item" data-page="download">
+            <i class="fas fa-download"></i>
+            <span>Download</span>
+          </a>
+          <a href="#" class="nav-item" data-page="audiobooks">
+            <i class="fas fa-headphones"></i>
+            <span>Audio Books</span>
+          </a>
+          <a href="#" class="nav-item" data-page="favourite">
+            <i class="fas fa-heart"></i>
+            <span>Favourite</span>
+          </a>
+          <a
+            href="#"
+            id="adminNavItem"
+            class="nav-item"
+            data-page="admin"
+            style="display: none"
+          >
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+          </a>
+        </nav>
+
+        <div class="nav-bottom">
+          <a href="#" class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          <a href="#" class="nav-item" data-page="support">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+          </a>
+          <a href="#" class="nav-item" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="dashboard-header">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search your favourite books"
+            />
+          </div>
+
+          <div class="header-actions">
+            <button class="notification-btn">
+              <i class="fas fa-bell"></i>
+              <span class="badge">3</span>
+            </button>
+
+            <div class="user-profile">
+              <img
+                src="https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff"
+                alt="User"
+              />
+              <span id="userName">User</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+
+          <button class="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
           </button>
-        </div>
-      </nav>
+        </header>
 
-      <!-- Dashboard Content -->
-      <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <ul class="menu">
-            <li class="menu-item active" data-section="books">
-              <i class="fas fa-book"></i>
-              <span>Books</span>
-            </li>
-            <li class="menu-item" data-section="borrowed">
-              <i class="fas fa-hand-holding"></i>
-              <span>Borrowed Books</span>
-            </li>
-            <li class="menu-item" data-section="stats">
-              <i class="fas fa-chart-bar"></i>
-              <span>Statistics</span>
-            </li>
-          </ul>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-          <!-- Books Section -->
-          <section id="booksSection" class="content-section active">
+        <!-- Page Content -->
+        <div id="pageContent" class="page-content">
+          <!-- Discover Page (Default) -->
+          <section id="discoverPage" class="content-page active">
             <div class="section-header">
-              <h2><i class="fas fa-book"></i> Book Management</h2>
-              <button id="addBookBtn" class="btn btn-success">
-                <i class="fas fa-plus"></i> Add New Book
+              <h2>Recommended</h2>
+            </div>
+
+            <div id="recommendedBooks" class="books-grid"></div>
+
+            <div class="section-header">
+              <h2>Categories</h2>
+              <button class="btn-filter">
+                <i class="fas fa-filter"></i>
               </button>
             </div>
 
-            <!-- Search Bar -->
-            <div class="search-bar">
-              <i class="fas fa-search"></i>
-              <input
-                type="text"
-                id="searchInput"
-                placeholder="Search books by title, author, or ISBN..."
-              />
+            <div class="categories-filter">
+              <button class="category-btn active" data-category="all">
+                All
+              </button>
+              <button class="category-btn" data-category="Sci-Fi">
+                Sci-Fi
+              </button>
+              <button class="category-btn" data-category="Fantasy">
+                Fantasy
+              </button>
+              <button class="category-btn" data-category="Drama">Drama</button>
+              <button class="category-btn" data-category="Business">
+                Business
+              </button>
+              <button class="category-btn" data-category="Education">
+                Education
+              </button>
+              <button class="category-btn" data-category="Geography">
+                Geography
+              </button>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-icon" style="background: #4caf50">
-                  <i class="fas fa-book"></i>
-                </div>
-                <div class="stat-info">
-                  <h3 id="totalBooks">0</h3>
-                  <p>Total Books</p>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon" style="background: #2196f3">
-                  <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                  <h3 id="availableBooks">0</h3>
-                  <p>Available</p>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon" style="background: #ff9800">
-                  <i class="fas fa-hand-holding"></i>
-                </div>
-                <div class="stat-info">
-                  <h3 id="borrowedBooksCount">0</h3>
-                  <p>Borrowed</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Books Grid -->
-            <div id="booksGrid" class="books-grid"></div>
+            <div id="categoryBooks" class="books-grid"></div>
           </section>
 
-          <!-- Borrowed Books Section -->
-          <section id="borrowedSection" class="content-section">
+          <!-- Admin Page (admins only) -->
+          <section id="adminPage" class="content-page">
             <div class="section-header">
-              <h2><i class="fas fa-hand-holding"></i> Borrowed Books</h2>
+              <h2>Manage Books</h2>
+              <button id="addBookBtn" class="btn-add">
+                <i class="fas fa-plus"></i> Add Book
+              </button>
             </div>
-            <div id="borrowedList" class="borrowed-list"></div>
+
+            <div id="adminBooks" class="books-grid"></div>
           </section>
 
-          <!-- Statistics Section -->
-          <section id="statsSection" class="content-section">
+          <!-- My Library Page -->
+          <section id="libraryPage" class="content-page">
             <div class="section-header">
-              <h2><i class="fas fa-chart-bar"></i> Library Statistics</h2>
-            </div>
-            <div class="stats-details">
-              <div class="stat-detail-card">
-                <h3>Book Categories</h3>
-                <div id="categoryStats"></div>
+              <h2>My Library</h2>
+              <div class="view-controls">
+                <button class="view-btn active" data-view="grid">
+                  <i class="fas fa-th"></i>
+                </button>
+                <button class="view-btn" data-view="list">
+                  <i class="fas fa-list"></i>
+                </button>
               </div>
-              <div class="stat-detail-card">
-                <h3>Recent Activity</h3>
-                <div id="activityLog"></div>
+            </div>
+
+            <div id="libraryBooks" class="books-grid"></div>
+          </section>
+
+          <!-- Category Page -->
+          <section id="categoryPage" class="content-page">
+            <div class="section-header">
+              <h2>Categories</h2>
+            </div>
+            <p class="page-subtitle">Browse your whole collection by genre</p>
+            <div id="categoryTiles" class="category-tiles"></div>
+          </section>
+
+          <!-- Download Page -->
+          <section id="downloadPage" class="content-page">
+            <div class="section-header">
+              <h2>Downloads</h2>
+              <span id="downloadStorageInfo" class="storage-info"></span>
+            </div>
+            <div id="downloadBooks" class="books-grid"></div>
+          </section>
+
+          <!-- Audio Books Page -->
+          <section id="audiobooksPage" class="content-page">
+            <div class="section-header">
+              <h2>Audio Books</h2>
+            </div>
+            <div id="audiobooksList" class="audio-list"></div>
+          </section>
+
+          <section id="favouritePage" class="content-page">
+            <h2>Favourites</h2>
+            <div id="favouriteBooks" class="books-grid"></div>
+          </section>
+
+          <!-- Settings Page -->
+          <section id="settingsPage" class="content-page">
+            <div class="section-header"><h2>Settings</h2></div>
+            <div class="settings-grid">
+              <div class="settings-card">
+                <h3>Profile</h3>
+                <form id="profileForm">
+                  <div class="form-group">
+                    <label for="settingsName">Full Name</label>
+                    <input type="text" id="settingsName" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="settingsEmail">Email</label>
+                    <input type="email" id="settingsEmail" required />
+                  </div>
+                  <button type="submit" class="btn-inline">Save Profile</button>
+                </form>
+              </div>
+
+              <div class="settings-card">
+                <h3>Change Password</h3>
+                <form id="passwordForm">
+                  <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      required
+                      minlength="6"
+                    />
+                  </div>
+                  <button type="submit" class="btn-inline">
+                    Update Password
+                  </button>
+                </form>
+              </div>
+
+              <div class="settings-card">
+                <h3>Appearance</h3>
+                <div class="toggle-row">
+                  <span>Dark mode</span>
+                  <label class="switch">
+                    <input type="checkbox" id="darkModeToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="settings-card danger-zone">
+                <h3>Danger Zone</h3>
+                <p>
+                  Remove every book you've added, plus your favourites and
+                  downloads. This can't be undone.
+                </p>
+                <button id="clearDataBtn" class="btn-danger-outline">
+                  Clear My Data
+                </button>
               </div>
             </div>
           </section>
-        </main>
+
+          <!-- Support Page -->
+          <section id="supportPage" class="content-page">
+            <div class="section-header"><h2>Support</h2></div>
+            <div class="support-grid">
+              <div class="support-card">
+                <h3>Frequently Asked Questions</h3>
+                <div id="faqList" class="faq-list"></div>
+              </div>
+
+              <div class="support-card">
+                <h3>Contact Us</h3>
+                <form id="supportForm">
+                  <div class="form-group">
+                    <label for="supportSubject">Subject</label>
+                    <input type="text" id="supportSubject" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="supportMessage">Message</label>
+                    <textarea id="supportMessage" rows="4" required></textarea>
+                  </div>
+                  <button type="submit" class="btn-inline">Send Message</button>
+                </form>
+                <div id="supportTickets" class="ticket-list"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Book Detail Panel -->
+      <aside id="bookDetailPanel" class="book-detail-panel">
+        <div class="detail-content">
+          <button class="close-detail">&times;</button>
+          <div id="bookDetailContent"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Reader Overlay -->
+    <div id="readerOverlay" class="reader-overlay">
+      <div class="reader-header">
+        <button class="close-reader" id="closeReaderBtn" title="Close">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="reader-title-group">
+          <div id="readerTitle" class="reader-title"></div>
+          <div id="readerAuthor" class="reader-author"></div>
+        </div>
+        <div class="reader-font-controls">
+          <button id="fontDecreaseBtn" title="Smaller text">A-</button>
+          <button id="fontIncreaseBtn" title="Larger text">A+</button>
+        </div>
+      </div>
+      <div class="reader-body" id="readerBody">
+        <div id="readerContent" class="reader-content"></div>
       </div>
     </div>
 
     <!-- Add/Edit Book Modal -->
     <div id="bookModal" class="modal">
       <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="modalTitle"><i class="fas fa-book"></i> Add New Book</h2>
-          <button class="close-modal">&times;</button>
-        </div>
+        <button class="close-modal">&times;</button>
+        <h2 id="bookModalTitle">Add New Book</h2>
+
         <form id="bookForm">
           <div class="form-row">
             <div class="form-group">
               <label for="bookTitle">Book Title *</label>
               <input type="text" id="bookTitle" required />
             </div>
+
             <div class="form-group">
               <label for="bookAuthor">Author *</label>
               <input type="text" id="bookAuthor" required />
             </div>
           </div>
+
           <div class="form-row">
-            <div class="form-group">
-              <label for="bookISBN">ISBN *</label>
-              <input type="text" id="bookISBN" required />
-            </div>
             <div class="form-group">
               <label for="bookCategory">Category *</label>
               <select id="bookCategory" required>
                 <option value="">Select Category</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Drama">Drama</option>
+                <option value="Business">Business</option>
+                <option value="Education">Education</option>
+                <option value="Geography">Geography</option>
+                <option value="Psychology">Psychology</option>
                 <option value="Fiction">Fiction</option>
-                <option value="Non-Fiction">Non-Fiction</option>
-                <option value="Science">Science</option>
-                <option value="History">History</option>
-                <option value="Technology">Technology</option>
-                <option value="Art">Art</option>
-                <option value="Other">Other</option>
               </select>
             </div>
-          </div>
-          <div class="form-row">
+
             <div class="form-group">
-              <label for="bookYear">Publication Year</label>
-              <input type="number" id="bookYear" min="1800" max="2024" />
-            </div>
-            <div class="form-group">
-              <label for="bookQuantity">Quantity *</label>
+              <label for="bookRating">Rating</label>
               <input
                 type="number"
-                id="bookQuantity"
-                min="1"
-                value="1"
-                required
+                id="bookRating"
+                min="0"
+                max="5"
+                step="0.1"
+                value="4.5"
               />
             </div>
           </div>
-          <div class="form-group">
-            <label for="bookImage">Book Cover URL</label>
-            <input
-              type="url"
-              id="bookImage"
-              placeholder="https://example.com/book-cover.jpg"
-            />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bookPages">Pages</label>
+              <input type="number" id="bookPages" min="1" />
+            </div>
+
+            <div class="form-group">
+              <label for="bookYear">Year</label>
+              <input type="number" id="bookYear" min="1900" max="2024" />
+            </div>
           </div>
+
+          <div class="form-group">
+            <label>Book Cover</label>
+            <div class="cover-upload">
+              <div class="cover-preview" id="coverPreview">
+                <img id="coverPreviewImg" alt="Cover preview" />
+                <i class="fas fa-image" id="coverPlaceholderIcon"></i>
+              </div>
+              <div class="cover-upload-actions">
+                <label for="bookCoverFile" class="btn-upload">
+                  <i class="fas fa-upload"></i> Upload from device
+                </label>
+                <input type="file" id="bookCoverFile" accept="image/*" hidden />
+                <button
+                  type="button"
+                  id="removeCoverBtn"
+                  class="btn-remove-cover"
+                  hidden
+                >
+                  <i class="fas fa-trash"></i> Remove
+                </button>
+                <div class="cover-url-row">
+                  <span>or paste an image URL</span>
+                  <input
+                    type="url"
+                    id="bookCover"
+                    placeholder="https://example.com/cover.jpg"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="bookDescription">Description</label>
-            <textarea id="bookDescription" rows="3"></textarea>
+            <textarea id="bookDescription" rows="4"></textarea>
           </div>
+
+          <div class="form-group">
+            <label for="bookContent">Full Book Text (shown when reading)</label>
+            <textarea
+              id="bookContent"
+              rows="8"
+              placeholder='Paste or write the book&apos;s full text here. This is what readers will see when they click "Start Reading".'
+            ></textarea>
+          </div>
+
           <input type="hidden" id="bookId" />
+
           <div class="modal-actions">
-            <button type="button" class="btn btn-outline close-modal">
-              Cancel
-            </button>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save"></i> Save Book
-            </button>
+            <button type="button" class="btn-cancel close-modal">Cancel</button>
+            <button type="submit" class="btn-signin">Save Book</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Borrow Book Modal -->
-    <div id="borrowModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-hand-holding"></i> Borrow Book</h2>
-          <button class="close-modal">&times;</button>
-        </div>
-        <form id="borrowForm">
-          <div class="form-group">
-            <label for="studentName">Student Name *</label>
-            <input type="text" id="studentName" required />
-          </div>
-          <div class="form-group">
-            <label for="studentId">Student ID *</label>
-            <input type="text" id="studentId" required />
-          </div>
-          <div class="form-group">
-            <label for="borrowDate">Borrow Date *</label>
-            <input type="date" id="borrowDate" required />
-          </div>
-          <div class="form-group">
-            <label for="returnDate">Expected Return Date *</label>
-            <input type="date" id="returnDate" required />
-          </div>
-          <input type="hidden" id="borrowBookId" />
-          <div class="modal-actions">
-            <button type="button" class="btn btn-outline close-modal">
-              Cancel
-            </button>
-            <button type="submit" class="btn btn-success">
-              <i class="fas fa-check"></i> Confirm Borrow
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
